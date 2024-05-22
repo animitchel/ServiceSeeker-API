@@ -1,0 +1,17 @@
+-- first define the docker file on the root folder
+-- create a dockerignore file too
+-- build it with : docker build .
+-- create the docker compose yml file
+-- build it with : docker-compose build
+-- add more conf for dockerfile and docker compose to work with the linting tool
+-- add the linting(flake8) tool inside the app directory, so it get picked up
+-- run the linting tool with : docker-compose run --rm app sh -c 'flake8'
+-- create the django project inside the already created app folder, use . to make sure the happens
+-- docker-compose run --rm app sh -c 'django-admin startproject app .'
+-- docker-compose up
+
+-- configure Github Actions for the project, for linting and testing automatically when you push code to github
+-- configure github project (service_seeker0 to use docker credentials for the github action jobs
+
+-- set/configure database service in docker-compose.yml with postgre, then docker-compose up, to see if it sets it up
+-- connect django to the docker db for this project ands install the dependencies and update requirements.txt
