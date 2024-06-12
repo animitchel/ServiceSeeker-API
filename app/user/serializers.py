@@ -4,6 +4,7 @@ Serializer for the user API view.
 from django.contrib.auth import (
     get_user_model,
 )
+from core.models import UserProfile
 
 # from django.utils.translation import gettext as _
 
@@ -15,12 +16,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ['email', 'password', 'name']
+        fields = ['id', 'email', 'password', 'first_name',
+                  'last_name', 'user_profile', 'provider_profile'
+                  ]
         extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
+        read_only_fields = ['user_profile', 'provider_profile']
 
     def create(self, validated_data):
         """Create and return a new user with encrypted password."""
-        return get_user_model().objects.create_user(**validated_data)
+        user = get_user_model().objects.create_user(**validated_data)
+        UserProfile.objects.create(user=user)
+
+        return user
 
     def update(self, instance, validated_data):
         """Update and return user object"""
@@ -32,3 +39,31 @@ class UserSerializer(serializers.ModelSerializer):
             user.save()
 
         return user
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    """Serializer for the User profile object."""
+
+    class Meta:
+        model = UserProfile
+        fields = [
+            'id', 'user', 'address', 'city', 'state',
+            'country', 'postal_code', 'bio',
+            'availability', 'email_notifications',
+            'sms_notifications', 'phone_number',
+            'profile_picture',
+        ]
+        read_only_fields = ['id', 'user']
+        extra_kwargs = {'user': {'required': True}}
+
+    def update(self, instance, validated_data):
+        profile_picture_data = validated_data.pop('profile_picture', [])
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if profile_picture_data:
+            instance.profile_picture = profile_picture_data
+
+        instance.save()
+        return instance
