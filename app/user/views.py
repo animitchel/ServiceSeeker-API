@@ -36,7 +36,6 @@ class ManageUserView(generics.RetrieveUpdateDestroyAPIView):
         return self.request.user
 
 
-# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyNTkyOTkzMiwiaWF0IjoxNzE4MTUzOTMyLCJqdGkiOiJmNDExOWM1M2E0MTc0NWQxOTkyMTI3OWZkYzM4N2NlNCIsInVzZXJfaWQiOjZ9.mUtKYTGsOUhY8rRDgGKsc8PMXXjbYvlc0mbGgmxLbjs
 class ManageUserProfileView(generics.RetrieveUpdateAPIView):
     """Handle creating and updating authenticated user"""
     authentication_classes = [JWTAuthentication]
@@ -49,5 +48,3 @@ class ManageUserProfileView(generics.RetrieveUpdateAPIView):
 
     def perform_update(self, serializer):
         serializer.save(user=self.request.user)
-
-# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyNTkzMDcxMiwiaWF0IjoxNzE4MTU0NzEyLCJqdGkiOiJmZGE1MjI2OWJiODU0YWFlOTcyNGI4MjI4MjY0ODE4NyIsInVzZXJfaWQiOjd9.isIGCl7g3_XbPFsTzJBvnhB5AQwpLptBdgg1KFt6Ezg
