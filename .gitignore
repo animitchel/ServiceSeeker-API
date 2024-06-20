@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 NOTES_on_building_with_docker
+pythonFuntions.py
 
 __pycache__/
 *.py[cod]
