@@ -4,7 +4,7 @@ Serializer for the user API view.
 from django.contrib.auth import (
     get_user_model,
 )
-from core.models import UserProfile
+from core.models import UserProfile, ProviderProfile
 
 # from django.utils.translation import gettext as _
 
@@ -25,7 +25,11 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """Create and return a new user with encrypted password."""
         user = get_user_model().objects.create_user(**validated_data)
+
+        # user profile and provider profile create for new user
+        # a user can also be a provider and vise versa
         UserProfile.objects.create(user=user)
+        ProviderProfile.objects.create(user=user)
 
         return user
 

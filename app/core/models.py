@@ -12,6 +12,9 @@ from django.contrib.auth.models import (
 )
 import uuid
 import os
+from django.core.validators import MinValueValidator, MaxValueValidator
+from decimal import Decimal
+from django.utils import timezone
 
 
 def service_seeker_image_file_path(instance, filename):
@@ -56,16 +59,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-
-
-class ServiceType(models.Model):
-    name = models.CharField(
-        choices=lists_of_choices.SERVICE_TYPES,
-        max_length=50, unique=True
-    )
-
-    def __str__(self):
-        return self.name
 
 
 class UserProfile(models.Model):
@@ -123,44 +116,43 @@ class ProviderProfile(models.Model):
         on_delete=models.CASCADE,
         related_name='provider_profile'
     )
-    service_types = models.ManyToManyField(
-        ServiceType,
-        related_name='provider_service_types'
+    # service_types = models.ManyToManyField(
+    #     ServiceType,
+    #     related_name='provider_service_types'
+    # )
+
+    location = models.CharField(
+        choices=lists_of_choices.LOCATION,
+        max_length=255, blank=True, null=True
     )
 
-    city = models.CharField(
-        choices=lists_of_choices.TOP_CITIES,
-        max_length=255, blank=True, null=True
-    )
-    state = models.CharField(
-        choices=lists_of_choices.TOP_STATES_PROVINCES,
-        max_length=255, blank=True, null=True
-    )
-    country = models.CharField(
-        choices=lists_of_choices.SUPPORTED_COUNTRIES,
-        max_length=255, blank=True, null=True
-    )
-    image = models.ImageField(upload_to='images/', blank=True, null=True)
     profile_picture = models.ImageField(
-        upload_to='images/', blank=True, null=True
+        upload_to=service_seeker_image_file_path, blank=True, null=True
     )
+
     bio = models.TextField(blank=True, null=True)
-    experience_years = models.PositiveIntegerField(blank=True, null=True)
-    certifications = models.TextField(blank=True, null=True)
-    availability = models.CharField(
-        choices=lists_of_choices.STATUS_CHOICES,
-        max_length=255, blank=True, null=True
+
+    experience_years = models.PositiveIntegerField(
+        blank=True, null=True, default=0
     )
-    is_verified = models.BooleanField(default=False)
-    documents = models.FileField(
-        upload_to='provider_documents/',
+
+    certifications = models.TextField(blank=True, null=True)
+
+    # is_verified = models.BooleanField(default=False)
+    certifications_documents = models.FileField(
+        upload_to=service_seeker_image_file_path,
         blank=True, null=True
     )
-    pricing_details = models.TextField(blank=True, null=True)
+    # pricing_details = models.TextField(blank=True, null=True)
+
     average_rating = models.DecimalField(
         max_digits=3, decimal_places=2,
         blank=True, null=True
     )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
     phone_number = models.CharField(
         max_length=15,
         null=True,
@@ -175,3 +167,62 @@ class ProviderProfile(models.Model):
 
     def __str__(self):
         return f"{self.user.first_name} {self.user.last_name}"
+
+
+class ServiceType(models.Model):
+    provider = models.ForeignKey(
+        ProviderProfile,
+        on_delete=models.CASCADE,
+        related_name='services',
+        null=True,
+    )
+
+    service_type = models.CharField(
+        choices=lists_of_choices.SERVICE_TYPES,
+        max_length=50, unique=True,
+        blank=True
+    )
+    description = models.TextField(max_length=255, null=True)
+    pricing = models.DecimalField(
+        max_digits=10, decimal_places=2,
+        default=Decimal('0.00'), null=True,
+        blank=True
+    )
+
+    availability = models.CharField(
+        choices=lists_of_choices.AVAILABILITY,
+        max_length=255, blank=True, null=True
+    )
+
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.service_type}, {self.pricing}'
+
+
+class Review(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reviews_rating'
+    )
+    service = models.ForeignKey(
+        ServiceType, on_delete=models.CASCADE,
+        related_name='user_reviews_rating',
+        null=True
+    )
+
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        help_text="Rating must be between 1 and 5.",
+        null=True, blank=True
+    )
+    review_text = models.TextField(
+        max_length=255, blank=True, null=True
+    )
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Rating: {self.rating}, Review: {self.review_text}"
