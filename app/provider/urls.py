@@ -10,7 +10,7 @@ from rest_framework.routers import DefaultRouter
 from provider import views
 
 router = DefaultRouter()
-router.register('provider', views.ProviderViewSet)
+router.register('profile', views.ProviderViewSet)
 router.register('service', views.ServiceTypeViewSet)
 router.register('review', views.ReviewViewSet)
 

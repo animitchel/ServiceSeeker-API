@@ -1,4 +1,4 @@
-version: "3.9"
+
 
 services:
   app:
@@ -26,6 +26,8 @@ services:
 
   db:
     image: postgres:13-alpine
+    ports:
+      - "5432:5432"  # Expose PostgreSQL port to the host
     volumes:
       - dev-db-data:/var/lib/postgresql/data
     environment:

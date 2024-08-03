@@ -86,6 +86,7 @@ DATABASES = {
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASS'),
+        'PORT': '5432',
     }
 }
 
@@ -189,8 +190,4 @@ SIMPLE_JWT = {
     "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
     "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
-}
-
-ENUM_NAME_OVERRIDES = {
-    'CityEnum': 'CityEnum',
 }
