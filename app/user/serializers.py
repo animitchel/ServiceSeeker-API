@@ -4,7 +4,7 @@ Serializer for the user API view.
 from django.contrib.auth import (
     get_user_model,
 )
-from core.models import UserProfile, ProviderProfile
+from core.models import UserProfile
 
 # from django.utils.translation import gettext as _
 
@@ -17,20 +17,26 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ['id', 'email', 'password', 'first_name',
-                  'last_name', 'user_profile', 'provider_profile'
+                  'last_name', 'user_profile', 'provider_profile',
+                  'date_joined',
                   ]
-        extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
+        extra_kwargs = {
+            'password': {
+                'write_only': True, 'min_length': 5,
+                'required': True
+            },
+            'first_name': {'required': True},
+            'email': {'required': True},
+        }
         read_only_fields = ['user_profile', 'provider_profile']
 
     def create(self, validated_data):
         """Create and return a new user with encrypted password."""
         user = get_user_model().objects.create_user(**validated_data)
 
-        # user profile and provider profile create for new user
+        # user profile created automatically for new user
         # a user can also be a provider and vise versa
         UserProfile.objects.create(user=user)
-        ProviderProfile.objects.create(user=user)
-
         return user
 
     def update(self, instance, validated_data):
@@ -47,15 +53,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for the User profile object."""
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = UserProfile
         fields = [
-            'id', 'user', 'address', 'city', 'state',
+            'id', 'address', 'city', 'state',
             'country', 'postal_code', 'bio',
             'availability', 'email_notifications',
             'sms_notifications', 'phone_number',
-            'profile_picture',
+            'profile_picture', 'user',
         ]
         read_only_fields = ['id', 'user']
         extra_kwargs = {'user': {'required': True}}

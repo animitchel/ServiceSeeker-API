@@ -6,15 +6,17 @@ from core.models import ProviderProfile, ServiceType, Review
 # from django.utils.translation import gettext as _
 
 from rest_framework import serializers
+from user.serializers import UserSerializer
 
 
 class ProviderSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = ProviderProfile
         # exclude = ('average_rating',)
         fields = [
             'id',
-            'user',
             'location',
             'profile_picture',
             'bio',
@@ -22,10 +24,10 @@ class ProviderSerializer(serializers.ModelSerializer):
             'certifications',
             'certifications_documents',
             'average_rating',
-            'created_at',
-            'updated_at',
             'phone_number',
             'services',
+            'user',
+            'created_at', 'updated_at',
         ]
 
         read_only_fields = [
@@ -36,13 +38,16 @@ class ProviderSerializer(serializers.ModelSerializer):
 
 
 class ServiceTypeSerializer(serializers.ModelSerializer):
+    provider = ProviderSerializer(read_only=True)
+
     class Meta:
         model = ServiceType
-        fields = ['id', 'provider',
+        fields = ['id',
                   'service_type', 'description',
                   'pricing', 'availability',
-                  'created_at', 'updated_at',
                   'user_reviews_rating',
+                  'provider',
+                  'created_at', 'updated_at',
                   ]
         read_only_fields = ['id', 'created_at', 'updated_at',
                             'provider', 'user_reviews_rating'
@@ -55,14 +60,19 @@ class ServiceTypeSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    service = ServiceTypeSerializer(read_only=True)
+
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = [
+            'id', 'rating',
+            'review_text',
+            'service', 'user',
+            'created_at', 'updated_at',
+        ]
         read_only_fields = ['id', 'created_at',
-                            'updated_at', 'user',
-                            'service'
+                            'updated_at',
+                            'service',
+                            'user',
                             ]
-        required = '__all__'
-
-    # def create(self, validated_data):
-    #     auth_user = self.context['request'].user

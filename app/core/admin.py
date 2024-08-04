@@ -24,9 +24,9 @@ class UserAdmin(BaseUserAdmin):
                 )
             }
         ),
-        (_('Important dates'), {'fields': ('last_login',)}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
-    readonly_fields = ['last_login']
+    readonly_fields = ['last_login', 'date_joined']
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
@@ -35,6 +35,7 @@ class UserAdmin(BaseUserAdmin):
                 'password1',
                 'password2',
                 'first_name',
+                'last_name',
                 'is_active',
                 'is_staff',
                 'is_superuser',
@@ -44,3 +45,7 @@ class UserAdmin(BaseUserAdmin):
 
 
 admin.site.register(models.User, UserAdmin)
+admin.site.register(models.UserProfile)
+admin.site.register(models.ProviderProfile)
+admin.site.register(models.ServiceType)
+admin.site.register(models.Review)
