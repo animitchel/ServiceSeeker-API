@@ -24,7 +24,7 @@ from drf_spectacular.utils import (
 )
 
 from core import lists_of_choices
-from .provider_helper_functions import get_max_rating
+from .provider_helper_functions import get_max_ratings
 
 
 class ProviderViewSet(viewsets.ModelViewSet):
@@ -147,28 +147,42 @@ class ServiceTypeViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(pricing__lte=pricing)
         if top_rated:
             queryset = queryset.filter(
-                user_reviews_rating__rating__gte=get_max_rating(queryset))
+                user_reviews_rating__rating__gte=get_max_ratings(queryset))
         if availability:
             queryset = queryset.filter(availability=availability)
 
-        if self.action == "list":
-            return queryset
-        elif self.action == "create_review_rating":
+        if self.action == "create_review_rating":
             provider = ProviderProfile.objects.get(
                 user=self.request.user
             )
             queryset = queryset.exclude(provider=provider)
-        else:
-            try:
-                provider = ProviderProfile.objects.get(
-                    user=self.request.user
-                )
-            except ProviderProfile.DoesNotExist:
-                raise Http404("Provider does not exist")
-            else:
-                queryset = queryset.filter(provider=provider)
 
         return queryset
+
+    def perform_update(self, serializer):
+        """Update a provider profile"""
+        instance = self.get_object()
+        if serializer.is_valid():
+            if instance.provider.user != self.request.user:
+                raise PermissionDenied(
+                    "You do not have permission "
+                    "to update this object."
+                )
+
+            serializer.save(user=self.request.user)
+        else:
+            raise ValidationError(serializer.errors)
+
+    def destroy(self, request, *args, **kwargs):
+        """Delete a provider profile"""
+        instance = self.get_object()
+        if instance.provider.user != self.request.user:
+            raise PermissionDenied(
+                "You do not have permission "
+                "to delete this object."
+            )
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_class(self):
         if self.action == "create_review_rating":
@@ -291,6 +305,3 @@ class ReviewViewSet(mixins.RetrieveModelMixin,
                                    )
         self.perform_destroy(instance)
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-# i will create availability many to many
-# relationship with service to one can select multiple object

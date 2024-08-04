@@ -3,6 +3,7 @@ from django.db import connection
 
 
 class Command(BaseCommand):
+    """Handle the truncation of all tables in the database."""
     help = 'Truncate all tables in the database'
 
     def handle(self, *args, **kwargs):

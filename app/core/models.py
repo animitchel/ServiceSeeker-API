@@ -164,7 +164,10 @@ class ProviderProfile(models.Model):
         ])
 
     def __str__(self):
-        return f"{self.user.first_name} {self.user.last_name}"
+        return (f""
+                f"{self.user.first_name} {self.user.last_name}: "
+                f"{self.location}"
+                )
 
 
 class ServiceType(models.Model):
@@ -196,7 +199,10 @@ class ServiceType(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.service_type}, {self.pricing}'
+        return (f''
+                f'{self.provider.user.first_name}: '
+                f'{self.service_type}, {self.pricing}'
+                )
 
 
 class Review(models.Model):
@@ -223,4 +229,7 @@ class Review(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Rating: {self.rating}, Review: {self.review_text}"
+        return (f"Rating: "
+                f"{self.user.first_name}: {self.rating}, "
+                f"Review: {self.review_text}"
+                )
