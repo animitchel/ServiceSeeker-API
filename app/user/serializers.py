@@ -36,7 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         # user profile created automatically for new user
         # a user can also be a provider and vise versa
-        UserProfile.objects.create(user=user)
+        # UserProfile.objects.create(user=user)
         return user
 
     def update(self, instance, validated_data):
@@ -53,7 +53,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
     """Serializer for the User profile object."""
-    user = UserSerializer(read_only=True)
 
     class Meta:
         model = UserProfile

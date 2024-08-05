@@ -131,6 +131,8 @@ class ProviderProfile(models.Model):
     bio = models.TextField(blank=True, null=True, max_length=400)
 
     experience_years = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(99)],
+        help_text="Experience_years must be between 1 and 99.",
         blank=True, null=True, default=0,
     )
 

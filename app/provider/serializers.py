@@ -6,11 +6,11 @@ from core.models import ProviderProfile, ServiceType, Review
 # from django.utils.translation import gettext as _
 
 from rest_framework import serializers
-from user.serializers import UserSerializer
+from rest_framework.reverse import reverse
 
 
 class ProviderSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    services_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ProviderProfile
@@ -25,7 +25,7 @@ class ProviderSerializer(serializers.ModelSerializer):
             'certifications_documents',
             'average_rating',
             'phone_number',
-            'services',
+            'services_url',
             'user',
             'created_at', 'updated_at',
         ]
@@ -33,24 +33,35 @@ class ProviderSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'created_at', 'updated_at',
             'user', 'id', 'average_rating',
-            'services']
+            'services_url']
         extra_kwargs = {'user': {'required': True}}
+
+    def get_services_url(self, obj):
+        request = self.context.get('request')
+        services = obj.services.all()
+        return [
+            reverse(
+                'provider:service-detail',
+                kwargs={'pk': service.pk},
+                request=request) for service in services
+        ]
 
 
 class ServiceTypeSerializer(serializers.ModelSerializer):
-    provider = ProviderSerializer(read_only=True)
+    provider_url = serializers.SerializerMethodField()
+    user_review_rating_url = serializers.SerializerMethodField()
 
     class Meta:
         model = ServiceType
         fields = ['id',
                   'service_type', 'description',
                   'pricing', 'availability',
-                  'user_reviews_rating',
-                  'provider',
+                  'user_review_rating_url',
+                  'provider_url',
                   'created_at', 'updated_at',
                   ]
         read_only_fields = ['id', 'created_at', 'updated_at',
-                            'provider', 'user_reviews_rating'
+                            'provider_url', 'user_review_rating_url'
                             ]
         extra_kwargs = {'service_type': {'required': True},
                         'description': {'required': True},
@@ -58,21 +69,46 @@ class ServiceTypeSerializer(serializers.ModelSerializer):
                         'availability': {'required': True}
                         }
 
+    def get_provider_url(self, obj):
+        request = self.context.get('request')
+        return reverse(
+            'provider:profile-detail',
+            kwargs={'pk': obj.provider.pk},
+            request=request
+        )
+
+    def get_user_review_rating_url(self, obj):
+        request = self.context.get('request')
+        reviews = obj.user_reviews_rating.all()
+        return [
+            reverse(
+                'provider:review-detail',
+                kwargs={'pk': review.pk},
+                request=request) for review in reviews
+        ]
+
 
 class ReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    service = ServiceTypeSerializer(read_only=True)
+    services_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
         fields = [
             'id', 'rating',
             'review_text',
-            'service', 'user',
+            'services_url', 'user',
             'created_at', 'updated_at',
         ]
         read_only_fields = ['id', 'created_at',
                             'updated_at',
-                            'service',
+                            'services_url',
                             'user',
                             ]
+
+    def get_services_url(self, obj):
+        request = self.context.get('request')
+        return reverse(
+            'provider:service-detail',
+            kwargs={'pk': obj.service.pk},
+            request=request
+        )
