@@ -9,12 +9,12 @@ from django.urls import (
 from rest_framework.routers import DefaultRouter
 from provider import views
 
-router = DefaultRouter()
-router.register('profile', views.ProviderViewSet)
-router.register('service', views.ServiceTypeViewSet)
-router.register('review', views.ReviewViewSet)
-
 app_name = 'provider'
+
+router = DefaultRouter()
+router.register('profile', views.ProviderViewSet, basename='profile')
+router.register('service', views.ServiceTypeViewSet, basename='service')
+router.register('review', views.ReviewViewSet, basename='review')
 
 urlpatterns = [
     path('', include(router.urls)),

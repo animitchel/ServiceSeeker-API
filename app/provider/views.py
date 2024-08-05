@@ -1,7 +1,6 @@
 from django.http import Http404
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied  # noqa
 from rest_framework import generics, permissions  # noqa
-from rest_framework.exceptions import PermissionDenied
 # from rest_framework.authtoken.views import ObtainAuthToken
 # from rest_framework.settings import api_settings
 # from django.contrib.auth import get_user_model
@@ -14,7 +13,7 @@ from provider.serializers import (
     ServiceTypeSerializer,
     ReviewSerializer,
 )
-from core.models import ProviderProfile, ServiceType, Review
+from core.models import ProviderProfile, ServiceType, Review, UserProfile
 
 from drf_spectacular.utils import (
     extend_schema_view,
@@ -39,29 +38,34 @@ class ProviderViewSet(viewsets.ModelViewSet):
         doesn't already exist for the user"""
         queryset = self.queryset
         user = self.request.user
-
+        try:
+            UserProfile.objects.get(user=self.request.user)
+        except UserProfile.DoesNotExist:
+            raise PermissionDenied(
+                "You do not have permission "
+                "to create this object. "
+                "Create user-profile before you can "
+                "create a provider profile"
+            )
         if queryset.filter(user=user).exists():
             # If the provider already exists, raise a validation error
-            raise ValidationError(
+            raise PermissionDenied(
                 "You already have a provider profile. "
                 "A user can only have one provider "
                 "profile per user.")
 
-        serializer.save(user=self.request.user)
+        serializer.save(user=user)
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer, *args, **kwargs):
         """Update a provider profile"""
         instance = self.get_object()
-        if serializer.is_valid():
-            if instance.user != self.request.user:
-                raise PermissionDenied(
-                    "You do not have permission "
-                    "to update this object."
-                )
+        if instance.user != self.request.user:
+            raise PermissionDenied(
+                "You do not have permission "
+                "to update this object."
+            )
 
-            serializer.save(user=self.request.user)
-        else:
-            raise ValidationError(serializer.errors)
+        serializer.save(user=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         """Delete a provider profile"""
@@ -152,26 +156,28 @@ class ServiceTypeViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(availability=availability)
 
         if self.action == "create_review_rating":
-            provider = ProviderProfile.objects.get(
-                user=self.request.user
-            )
-            queryset = queryset.exclude(provider=provider)
+            try:
+                provider = ProviderProfile.objects.get(
+                    user=self.request.user
+                )
+            except ProviderProfile.DoesNotExist:
+                # this would need to exclude, because profile doesn't exist
+                pass
+            else:
+                queryset = queryset.exclude(provider=provider)
 
         return queryset
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer, *args, **kwargs):
         """Update a provider profile"""
         instance = self.get_object()
-        if serializer.is_valid():
-            if instance.provider.user != self.request.user:
-                raise PermissionDenied(
-                    "You do not have permission "
-                    "to update this object."
-                )
+        if instance.provider.user != self.request.user:
+            raise PermissionDenied(
+                "You do not have permission "
+                "to update this object."
+            )
 
-            serializer.save(user=self.request.user)
-        else:
-            raise ValidationError(serializer.errors)
+        serializer.save(user=self.request.user)
 
     def destroy(self, request, *args, **kwargs):
         """Delete a provider profile"""
@@ -219,10 +225,12 @@ class ServiceTypeViewSet(viewsets.ModelViewSet):
             )
         except ProviderProfile.DoesNotExist:
             return Response(
-                'ProviderProfile matching query does not exist.',
+                'ProviderProfile matching query does not exist. '
+                'You do not have services yet, '
+                'please register as a provider first.',
                 status=status.HTTP_404_NOT_FOUND)
 
-        queryset = ServiceType.objects.filter(provider=provider)
+        queryset = self.queryset.filter(provider=provider)
 
         serializer = self.get_serializer(queryset, many=True)
 
@@ -235,7 +243,7 @@ class ServiceTypeViewSet(viewsets.ModelViewSet):
         try:
             instance = self.get_object()
         except Http404:
-            raise Http404("Object not found. "
+            raise Http404("You do not have permission. "
                           "A provider cannot review themselves"
                           )
 
@@ -285,19 +293,16 @@ class ReviewViewSet(mixins.RetrieveModelMixin,
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def perform_update(self, serializer):
+    def perform_update(self, serializer, *args, **kwargs):
         instance = self.get_object()
-        if serializer.is_valid():
-            if instance.user != self.request.user:
-                raise PermissionDenied(
-                    "You do not have permission "
-                    "to update this object."
-                )
-            serializer.save(user=self.request.user)
-        else:
-            raise ValidationError(serializer.errors)
+        if instance.user != self.request.user:
+            raise PermissionDenied(
+                "You do not have permission "
+                "to update this object."
+            )
+        serializer.save(user=self.request.user)
 
-    def perform_destroy(self, instance):
+    def perform_destroy(self, instance, *args, **kwargs):
         """Remove the review object from the database."""
         if instance.user != self.request.user:
             raise PermissionDenied("You do not have permission "
