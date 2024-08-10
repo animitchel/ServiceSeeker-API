@@ -167,3 +167,10 @@ LOCATION_params = [
     'New York City',
     'Manchester'
 ]
+
+PROCESS_STATE = [
+    ('pending', 'Pending'),
+    ('approved', 'Approved'),
+    ('canceled', 'Canceled'),
+    ('completed', 'Completed')
+]

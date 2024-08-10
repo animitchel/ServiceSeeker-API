@@ -38,7 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'user',
+    'user_profile',
     'provider',
+    'booking_scheduling',
+    'jw_token',
+    'review',
+    'service',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'drf_spectacular',
@@ -150,6 +155,12 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     'COMPONENT_SPLIT_REQUEST': True,
 }
+
+# SPECTACULAR_SETTINGS = {
+#     'TITLE': 'Service Seeker API',
+#     'DESCRIPTION': 'API documentation',
+#     'VERSION': '2.0.0',
+# }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
