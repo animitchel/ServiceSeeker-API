@@ -62,6 +62,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email'
 
+    class Meta:
+        ordering = ['-date_joined']
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(
@@ -88,7 +91,7 @@ class UserProfile(models.Model):
         upload_to=service_seeker_image_file_path,
         blank=True, null=True
     )
-    bio = models.TextField(blank=True, null=True)
+    # bio = models.TextField(blank=True, null=True)
     availability = models.CharField(
         choices=lists_of_choices.STATUS_CHOICES,
         max_length=255, blank=True, null=True
@@ -171,6 +174,9 @@ class ProviderProfile(models.Model):
                 f"{self.location}"
                 )
 
+    class Meta:
+        ordering = ['-created_at']
+
 
 class ServiceType(models.Model):
     provider = models.ForeignKey(
@@ -206,6 +212,9 @@ class ServiceType(models.Model):
                 f'{self.service_type}, {self.pricing}'
                 )
 
+    class Meta:
+        ordering = ['-created_at']
+
 
 class Review(models.Model):
     user = models.ForeignKey(
@@ -235,3 +244,35 @@ class Review(models.Model):
                 f"{self.user.first_name}: {self.rating}, "
                 f"Review: {self.review_text}"
                 )
+
+    class Meta:
+        ordering = ['-created_at']
+
+
+class ServiceOrder(models.Model):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='service_orders'
+    )
+    service = models.ForeignKey(
+        ServiceType, on_delete=models.CASCADE,
+        related_name='service_orders'
+    )
+    order_date = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=50, choices=lists_of_choices.PROCESS_STATE,
+        default='pending')
+    details = models.TextField(
+        blank=True, null=True, max_length=500
+    )
+
+    def __str__(self):
+        return (f''
+                f'{self.user.first_name} - '
+                f'{self.service.service_type} ordered on '
+                f'{self.order_date}'
+                )
+
+    class Meta:
+        verbose_name_plural = 'ServiceOrder'
+        ordering = ['-order_date']

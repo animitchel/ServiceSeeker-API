@@ -33,7 +33,12 @@ urlpatterns = [
         name='api-docs'
     ),
     path('api/user/', include('user.urls')),
-    path('api/provider/', include('provider.urls'))
+    path('api/provider/', include('provider.urls')),
+    path('api/booking-scheduling/', include('booking_scheduling.urls')),
+    path('api/user-profile/', include('user_profile.urls')),
+    path('api/jwt-auth/', include('jw_token.urls')),
+    path('api/review/', include('review.urls')),
+    path('api/service/', include('service.urls')),
 ]
 
 if settings.DEBUG:
