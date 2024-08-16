@@ -11,7 +11,10 @@ from provider.serializers import (
     ProviderSerializer,
 )
 from core.models import ProviderProfile, ServiceType, UserProfile, ServiceOrder
-from booking_scheduling.serializers import ServiceOrderSerializer
+from booking_scheduling.serializers import (
+    ServiceOrderSerializer,
+    ServiceOrderSerializerForProvider
+)
 
 
 class ProviderViewSet(viewsets.ModelViewSet):
@@ -23,7 +26,8 @@ class ProviderViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         """Return appropriate serializer """
-        if self.action == "get_service_requests":
+        if (self.action == "get_service_requests" or
+                self.action == "get_completed_service_requests"):
             return ServiceOrderSerializer
         return self.serializer_class
 
@@ -77,10 +81,31 @@ class ProviderViewSet(viewsets.ModelViewSet):
             )
     def get_service_requests(self, request, pk=None):
 
+        provider = ProviderProfile.objects.get(user=request.user)
+        services = ServiceType.objects.filter(provider=provider)
+        service_request = ServiceOrder.objects.exclude(
+            status='completed').filter(service__in=services
+                                       )
+
+        serializer = ServiceOrderSerializerForProvider(
+            service_request, many=True
+        )
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['GET'],
+            url_path='provider-completed-service-order'
+            )
+    def get_completed_service_requests(self, request, pk=None):
+
         provider = ProviderProfile.objects.get(user=self.request.user)
         services = ServiceType.objects.filter(provider=provider)
-        service_request = ServiceOrder.objects.filter(service__in=services)
+        completed_service_request = ServiceOrder.objects.filter(
+            service__in=services, status='completed'
+        )
 
-        serializer = ServiceOrderSerializer(service_request, many=True)
+        serializer = ServiceOrderSerializerForProvider(
+            completed_service_request, many=True
+        )
 
         return Response(serializer.data, status=status.HTTP_200_OK)

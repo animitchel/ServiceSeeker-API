@@ -17,7 +17,7 @@ class ServiceTypeSerializer(serializers.ModelSerializer):
                   'created_at', 'updated_at',
                   ]
         read_only_fields = ['id', 'created_at', 'updated_at',
-                            'provider_url', 'user_review_rating_url'
+                            'provider_url', 'user_review_rating_url',
                             ]
         extra_kwargs = {'service_type': {'required': True},
                         'description': {'required': True},

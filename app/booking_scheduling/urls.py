@@ -5,15 +5,10 @@ from rest_framework.routers import DefaultRouter
 
 app_name = 'booking_scheduling'
 
-# action = {
-#     # 'get': 'list',
-#     'post': 'create_request_for_service'
-# }
-
 router = DefaultRouter()
-router.register(r'service-order',
+router.register('service-order',
                 views.ServiceOrderViewSet,
-                basename='serviceorder'
+                basename='service_order'
                 )
 
 urlpatterns = [
