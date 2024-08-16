@@ -86,7 +86,6 @@ SERVICE_TYPES = [
     ('fitness_coach', 'Fitness Coach')
 ]
 
-
 AVAILABILITY = [
     ('mon_fri_9_6', 'Monday to Friday: 9 AM - 6 PM'),
     ('mon_fri_8_5', 'Monday to Friday: 8 AM - 5 PM'),
@@ -169,7 +168,6 @@ LOCATION_params = [
 ]
 
 PROCESS_STATE = [
-    ('pending', 'Pending'),
     ('approved', 'Approved'),
     ('canceled', 'Canceled'),
     ('completed', 'Completed')

@@ -12,16 +12,21 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'order_date',
-            'status',
             'details',
+            'appointment_date',
+            'is_appointment',
             'service_url',
             'user'
         ]
         read_only_fields = [
             'id', 'order_date',
             'service_url', 'user',
-            'status',
+            'is_appointment',
         ]
+
+        extra_kwargs = {'appointment_date': {
+            'required': True,
+        }}
 
     def get_service_url(self, obj) -> str:
         request = self.context.get('request')
@@ -29,3 +34,13 @@ class ServiceOrderSerializer(serializers.ModelSerializer):
             'service:service-detail',
             kwargs={'pk': obj.service.pk}, request=request
         )
+
+
+class ServiceOrderSerializerForProvider(ServiceOrderSerializer):
+    class Meta(ServiceOrderSerializer.Meta):
+        fields = ServiceOrderSerializer.Meta.fields + ['status']
+        read_only_fields = (
+                ServiceOrderSerializer.Meta.read_only_fields +
+                ['details', 'appointment_date']
+        )
+        extra_kwargs = {'status': {'required': True}}

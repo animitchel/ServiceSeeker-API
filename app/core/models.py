@@ -251,7 +251,8 @@ class Review(models.Model):
 
 class ServiceOrder(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE,
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
         related_name='service_orders'
     )
     service = models.ForeignKey(
@@ -259,6 +260,10 @@ class ServiceOrder(models.Model):
         related_name='service_orders'
     )
     order_date = models.DateTimeField(auto_now_add=True)
+
+    appointment_date = models.DateTimeField(null=True)
+    is_appointment = models.BooleanField(default=False)
+
     status = models.CharField(
         max_length=50, choices=lists_of_choices.PROCESS_STATE,
         default='pending')
