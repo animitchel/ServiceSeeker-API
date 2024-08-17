@@ -27,12 +27,17 @@ class ServiceOrderViewSet(mixins.RetrieveModelMixin,
                           mixins.ListModelMixin,
                           mixins.DestroyModelMixin,
                           viewsets.GenericViewSet):
+    """View to retrieve, list and manage Service Orders"""
     queryset = ServiceOrder.objects.all()
     serializer_class = ServiceOrderSerializer
     authentication_classes = [JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        """
+        Filter queryset based on the
+        current user and no appointment
+        """
         return self.queryset.filter(
             user=self.request.user,
             is_appointment=False

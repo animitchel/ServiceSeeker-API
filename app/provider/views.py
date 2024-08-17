@@ -80,7 +80,7 @@ class ProviderViewSet(viewsets.ModelViewSet):
             url_path='provider-service-requests'
             )
     def get_service_requests(self, request, pk=None):
-
+        """List all service order requests for a specific provider"""
         provider = ProviderProfile.objects.get(user=request.user)
         services = ServiceType.objects.filter(provider=provider)
         service_request = ServiceOrder.objects.exclude(
@@ -97,7 +97,9 @@ class ProviderViewSet(viewsets.ModelViewSet):
             url_path='provider-completed-service-order'
             )
     def get_completed_service_requests(self, request, pk=None):
-
+        """
+        List all completed service order appointment for a specific provider
+        """
         provider = ProviderProfile.objects.get(user=self.request.user)
         services = ServiceType.objects.filter(provider=provider)
         completed_service_request = ServiceOrder.objects.filter(

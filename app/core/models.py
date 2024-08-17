@@ -67,6 +67,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserProfile(models.Model):
+    """
+    Model representing a user's profile with personal details,
+    contact information, and notification preferences.
+    """
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -116,6 +120,11 @@ class UserProfile(models.Model):
 
 
 class ProviderProfile(models.Model):
+    """
+    Model representing a service provider's
+    profile with professional
+    details, contact information, and ratings.
+    """
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -175,10 +184,15 @@ class ProviderProfile(models.Model):
                 )
 
     class Meta:
+        """Meta options for the ProviderProfile model."""
         ordering = ['-created_at']
 
 
 class ServiceType(models.Model):
+    """
+    Model representing a type of service offered by a provider,
+    including description, pricing, and availability.
+    """
     provider = models.ForeignKey(
         ProviderProfile,
         on_delete=models.CASCADE,
@@ -213,10 +227,15 @@ class ServiceType(models.Model):
                 )
 
     class Meta:
+        """Meta options for the ServiceType model."""
         ordering = ['-created_at']
 
 
 class Review(models.Model):
+    """
+    Model representing a review and rating
+    given by a user to a service.
+    """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -246,10 +265,15 @@ class Review(models.Model):
                 )
 
     class Meta:
+        """Meta options for the Review model."""
         ordering = ['-created_at']
 
 
 class ServiceOrder(models.Model):
+    """
+    Model representing a service order made by a user,
+    including appointment details and order status.
+    """
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -279,5 +303,6 @@ class ServiceOrder(models.Model):
                 )
 
     class Meta:
+        """Meta options for the ServiceOrder model."""
         verbose_name_plural = 'ServiceOrder'
         ordering = ['-order_date']

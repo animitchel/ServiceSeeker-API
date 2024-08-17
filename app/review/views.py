@@ -26,9 +26,6 @@ class ReviewViewSet(mixins.RetrieveModelMixin,
                     viewsets.GenericViewSet):
     """
         View for manage review APIS.
-
-        Believe that this viewset.
-
     """
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
@@ -36,6 +33,7 @@ class ReviewViewSet(mixins.RetrieveModelMixin,
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_update(self, serializer, *args, **kwargs):
+        """Update the review object in the database"""
         instance = self.get_object()
         if instance.user != self.request.user:
             raise PermissionDenied(
@@ -67,7 +65,7 @@ class ReviewViewSet(mixins.RetrieveModelMixin,
     )
     @action(detail=True, methods=['POST'], url_path='review-rating')
     def create_review_rating(self, request, pk):
-        """Create a new rating and review for service"""
+        """Create a review for service"""
 
         try:
             instance = ServiceType.objects.get(id=pk)
