@@ -153,14 +153,25 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
+    'TITLE': 'Service Seeker API',
+    'DESCRIPTION': 'API documentation for Service Seeker',
+    'VERSION': '1.0.2',
+    'SERVE_INCLUDE_SCHEMA': True,
     'COMPONENT_SPLIT_REQUEST': True,
+    # available SwaggerUI configuration parameters
+    # https://swagger.io/docs/open-source-tools/swagger-ui/usage/configuration/
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        # 'displayOperationId': True,
+        'tryItOutEnabled': True,
+        'docExpansion': 'none',
+        'defaultModelsExpandDepth': -1,
+    },
+    # available SwaggerUI versions: https://github.com/swagger-api/swagger-ui/releases
+    'SWAGGER_UI_DIST': 'https://cdn.jsdelivr.net/npm/swagger-ui-dist@latest',  # default
+    # 'SWAGGER_UI_FAVICON_HREF': STATIC_URL +
 }
-
-# SPECTACULAR_SETTINGS = {
-#     'TITLE': 'Service Seeker API',
-#     'DESCRIPTION': 'API documentation',
-#     'VERSION': '2.0.0',
-# }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),

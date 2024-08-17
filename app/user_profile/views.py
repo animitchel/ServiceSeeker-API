@@ -62,9 +62,11 @@ class ManageUserProfileView(generics.CreateAPIView,
                 "to update this object."
             )
         try:
-            # if you're deleting a user-profile,
-            # it also deletes your provider-profile,
-            # services and reviews attached to the services
+            """
+            if you're deleting a user-profile,
+            it also deletes your provider-profile,
+            services and reviews attached to the services
+            """
             ProviderProfile.objects.get(user=self.request.user).delete()
         except UserProfile.DoesNotExist:
             pass

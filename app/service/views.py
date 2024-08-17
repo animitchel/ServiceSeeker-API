@@ -126,6 +126,7 @@ class ServiceTypeViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
     def get_serializer_class(self):
+        """Return appropriate serializer"""
         if self.action == "create_review_rating":
             return ReviewSerializer
         elif self.action == "get_service_types":
@@ -152,7 +153,8 @@ class ServiceTypeViewSet(viewsets.ModelViewSet):
     def get_service_types(self, request, pk=None):
         """Get all service types related
         to a specific authenticated provider
-        currently logged in"""
+        currently logged in
+        """
 
         try:
             provider = ProviderProfile.objects.get(
